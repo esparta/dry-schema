@@ -66,15 +66,20 @@ module Dry
         output.key?(name)
       end
 
-      # Check if a given key resulted in an error
+      # Check if there's an error for the provided spec
       #
-      # @param [Symbol] name
+      # @param [Symbol, Hash<Symbol=>Symbol>] name
       #
       # @return [Boolean]
       #
       # @api public
-      def error?(name)
-        errors.key?(name)
+      def error?(spec, errors = self.errors)
+        case spec
+        when Symbol
+          errors.key?(spec)
+        when Hash
+          spec.reduce(errors) { |a, (key, spec)| error?(spec, a[key]) }
+        end
       end
 
       # Check if the result is successful
